@@ -47,13 +47,11 @@
    * **Open the Package Manager Console in Visual Studio.**
     **Run the following command to create the database schema:**  
     **Bash**  
-    **dotnet ef database update**
-    *   
+    **dotnet ef database update**  
 4. **Run the Application:**
   **Build and run the project from Visual Studio (press `F5`) or use the .NET CLI:**  
   **Bash**  
   **dotnet run**
-* 
 
 ---
 
