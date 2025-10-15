@@ -1,0 +1,11 @@
+# User secrets and local settings
+appsettings.json
+appsettings.Development.json
+
+
+# Visual Studio / .NET Core
+.vs/
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo

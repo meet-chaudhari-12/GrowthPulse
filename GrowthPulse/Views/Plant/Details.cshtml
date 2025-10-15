@@ -1,0 +1,39 @@
+﻿@model GrowthPulse.ViewModels.PlantDetailsViewModel
+
+@{
+    ViewData["Title"] = "Plant Details";
+}
+
+<h1>@Model.Name</h1>
+
+<div>
+    <h4>@Model.Species</h4>
+    <hr />
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <img src="@Model.PhotoUrl" alt="Photo of @Model.Name" class="img-fluid rounded shadow-sm" />
+        </div>
+        <div class="col-md-8">
+            <dl class="row">
+                <dt class="col-sm-4">Current Status</dt>
+                <dd class="col-sm-8"><span class="badge bg-info">@Model.Status</span></dd>
+
+                <dt class="col-sm-4">Planted On</dt>
+                <dd class="col-sm-8">@Model.PlantingDate.ToShortDateString()</dd>
+            </dl>
+        </div>
+    </div>
+
+</div>
+
+<div class="mt-4">
+    @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+    {
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+        <a asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
+        @if (Model.Status == "ForSale")
+        {
+            <a asp-controller="Listing" asp-action="CreateFromPlant" asp-route-plantId="@Model.Id" class="btn btn-success">Sell This Plant</a>
+        }
+    }
+</div>

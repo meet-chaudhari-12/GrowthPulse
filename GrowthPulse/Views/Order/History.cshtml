@@ -1,0 +1,33 @@
+﻿@model List<GrowthPulse.ViewModels.OrderHistoryViewModel>
+
+@{
+    ViewData["Title"] = "Order History";
+}
+
+<h1>@ViewData["Title"]</h1>
+<p>Here is a list of your past purchases.</p>
+<hr />
+
+<table class="table table-striped table-hover">
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Order Date</th>
+            <th>Total Price</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model)
+        {
+            <tr>
+                <td>#@order.OrderId</td>
+                <td>@order.OrderDate.ToString("d MMMM yyyy")</td>
+                <td>@order.TotalPrice.ToString("C")</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@order.OrderId" class="btn btn-sm btn-primary">View Details</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

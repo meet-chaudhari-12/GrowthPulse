@@ -1,0 +1,66 @@
+﻿@model GrowthPulse.ViewModels.ListingCreateViewModel
+
+@{
+    ViewData["Title"] = "Create New Listing";
+}
+
+<h1>@ViewData["Title"]</h1>
+<h4>Create a new product for the store catalog.</h4>
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Create" method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <input type="hidden" asp-for="PlantId" />
+            <input type="hidden" asp-for="ExistingPhotoUrl" />
+
+            <div class="form-group mb-3">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Description" class="control-label"></label>
+                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Price" class="control-label"></label>
+                <input asp-for="Price" class="form-control" />
+                <span asp-validation-for="Price" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="StockQuantity" class="control-label"></label>
+                <input asp-for="StockQuantity" class="form-control" />
+                <span asp-validation-for="StockQuantity" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Photo" class="control-label">New Image</label>
+                <input asp-for="Photo" class="form-control" type="file" />
+                @if (!string.IsNullOrEmpty(Model.ExistingPhotoUrl))
+                {
+                    <div class="mt-2">
+                        <p>Existing Photo:</p>
+                        <img src="@Model.ExistingPhotoUrl" alt="Existing Photo" style="max-width: 200px; height: auto; border-radius: 8px; border: 1px solid #ccc;" />
+                    </div>
+                }
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Create Listing" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

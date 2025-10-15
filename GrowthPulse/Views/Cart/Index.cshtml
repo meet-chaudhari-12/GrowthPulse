@@ -1,0 +1,279 @@
+@model IEnumerable<GrowthPulse.ViewModels.CartItemViewModel>
+@using System.Text.Json
+
+@{
+    ViewData["Title"] = "Shopping Cart";
+}
+
+<div class="container">
+    @if (TempData["InfoMessage"] != null)
+    {
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <i class="fas fa-info-circle"></i> @TempData["InfoMessage"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+    
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-shopping-cart text-primary"></i>
+                Shopping Cart
+            </h2>
+        </div>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Cart Items (@Model.Count() items)</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        @foreach (var item in Model)
+                        {
+                            <div class="cart-item p-3 border-bottom">
+                                <div class="row align-items-center">
+                                    <div class="col-md-2">
+                                        <img src="@item.PhotoUrl" class="img-fluid rounded" alt="@item.Name" style="height: 80px; width: 100%; object-fit: cover;">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <h6 class="mb-1">@item.Name</h6>
+                                        <p class="text-muted mb-0 small">@item.Price.ToString("C") each</p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="quantity-selector">
+                                            <button type="button" class="quantity-btn minus-btn" aria-label="Decrease quantity" onclick="updateQuantity(@item.ListingId, @(item.Quantity - 1))">-</button>
+                                            <input type="number" class="quantity-input" value="@item.Quantity" min="1" max="@item.StockQuantity" aria-label="Quantity" onchange="updateQuantity(@item.ListingId, this.value)">
+                                            <button type="button" class="quantity-btn plus-btn" aria-label="Increase quantity" onclick="updateQuantity(@item.ListingId, @(item.Quantity + 1))">+</button>
+                                        </div>
+                                        <small class="text-muted d-block text-center mt-1">Max: @item.StockQuantity</small>
+                                    </div>
+                                    <div class="col-md-2 text-center">
+                                        <h6 class="mb-0 text-success">@item.TotalPrice.ToString("C")</h6>
+                                    </div>
+                                    <div class="col-md-1 text-center">
+                                        <button class="btn btn-outline-danger btn-sm" onclick="removeFromCart(@item.ListingId)">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Order Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal:</span>
+                            <span id="subtotal">@Model.Sum(x => x.TotalPrice).ToString("C")</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Shipping:</span>
+                            <span class="text-success">Free</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-3">
+                            <strong>Total:</strong>
+                            <strong id="total">@Model.Sum(x => x.TotalPrice).ToString("C")</strong>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-success btn-lg" onclick="buyAllItems()">
+                                <i class="fas fa-shopping-cart"></i> Buy All Items
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="clearCart()">
+                                <i class="fas fa-trash"></i> Clear Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
+                    <h4 class="text-muted">Your cart is empty</h4>
+                    <p class="text-muted">Add some plants to get started!</p>
+                    <a asp-controller="Listing" asp-action="Index" class="btn btn-primary">
+                        <i class="fas fa-arrow-left"></i> Continue Shopping
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function updateQuantity(listingId, quantity) {
+            if (quantity < 1) {
+                removeFromCart(listingId);
+                return;
+            }
+
+            fetch('/Cart/UpdateQuantity', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                },
+                body: 'listingId=' + listingId + '&quantity=' + quantity
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload(); // Refresh to update totals
+                } else {
+                    showNotification(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                showNotification('Error updating quantity', 'error');
+            });
+        }
+
+        function removeFromCart(listingId) {
+            if (confirm('Are you sure you want to remove this item from your cart?')) {
+                fetch('/Cart/RemoveFromCart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    body: 'listingId=' + listingId
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        showNotification('Error removing item', 'error');
+                    }
+                })
+                .catch(error => {
+                    showNotification('Error removing item', 'error');
+                });
+            }
+        }
+
+        function buyAllItems() {
+            if (confirm('Are you sure you want to buy all items in your cart? This will create plants in your collection.')) {
+                // Get all cart items
+                var cartItems = @Html.Raw(Json.Serialize(Model.Select(x => new { ListingId = x.ListingId, Quantity = x.Quantity })));
+                
+                if (cartItems.length === 0) {
+                    showNotification('Your cart is empty!', 'error');
+                    return;
+                }
+
+                // Show loading state
+                var buyButton = document.querySelector('button[onclick="buyAllItems()"]');
+                var originalText = buyButton.innerHTML;
+                buyButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                buyButton.disabled = true;
+
+                // Process each item
+                var promises = cartItems.map(function(item) {
+                    return fetch('/Order/Create', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        body: 'listingId=' + item.listingId + '&quantity=' + item.quantity
+                    });
+                });
+
+                // Execute all purchases
+                Promise.all(promises)
+                    .then(function(responses) {
+                        // Check if all purchases were successful
+                        var allSuccessful = responses.every(function(response) {
+                            return response.ok;
+                        });
+
+                        if (allSuccessful) {
+                            // Clear the cart after successful purchase
+                            return fetch('/Cart/ClearCart', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                                }
+                            });
+                        } else {
+                            throw new Error('Some purchases failed');
+                        }
+                    })
+                    .then(function(response) {
+                        if (response.ok) {
+                            showNotification('All items purchased successfully! Redirecting to your plants...', 'success');
+                            // Redirect to plant page after successful purchase
+                            setTimeout(function() {
+                                window.location.href = '/Listing';
+                            }, 2000);
+                        } else {
+                            throw new Error('Failed to clear cart');
+                        }
+                    })
+                    .catch(function(error) {
+                        console.error('Purchase error:', error);
+                        showNotification('Error processing your purchase. Please try again.', 'error');
+                        // Reset button
+                        buyButton.innerHTML = originalText;
+                        buyButton.disabled = false;
+                    });
+            }
+        }
+
+        function clearCart() {
+            if (confirm('Are you sure you want to clear your entire cart?')) {
+                fetch('/Cart/ClearCart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        showNotification('Error clearing cart', 'error');
+                    }
+                })
+                .catch(error => {
+                    showNotification('Error clearing cart', 'error');
+                });
+            }
+        }
+
+
+        function showNotification(message, type) {
+            var notification = document.createElement('div');
+            notification.className = 'alert alert-' + (type === 'success' ? 'success' : 'danger') + ' alert-dismissible fade show position-fixed';
+            notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            notification.innerHTML = message + '<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>';
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+    </script>
+}

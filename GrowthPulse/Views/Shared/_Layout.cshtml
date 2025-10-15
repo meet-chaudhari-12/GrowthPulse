@@ -1,0 +1,121 @@
+﻿<head>
+    <meta charset="utf--8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - GrowthPulse</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">GrowthPulse</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+
+                    <ul class="navbar-nav">
+                        <partial name="_LoginPartial" />
+                    </ul>
+
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Home" asp-action="Index">
+                                <i class="fas fa-home"></i> Home
+                            </a>
+                        </li>
+                        @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Plant" asp-action="Index">
+                                    <i class="fas fa-seedling"></i> Plants
+                                </a>
+                            </li>
+                        }
+                        @if(User.Identity.IsAuthenticated)
+                        {
+
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Home" asp-action="AllPlants">
+                                    <i class="fas fa-images"></i> Plant Gallery
+                                </a>
+                            </li>
+
+                        }
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Listing" asp-action="Index">
+                                <i class="fas fa-store"></i> Marketplace
+                            </a>
+                        </li>
+
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Cart" asp-action="Index">
+                                    <i class="fas fa-shopping-cart"></i> Cart
+                                    <span class="badge badge-primary ml-1" id="cart-count" style="display: none;">0</span>
+                                </a>
+                            </li>
+                        }
+
+                        @if (User.IsInRole("Customer"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Order" asp-action="History">
+                                    <i class="fas fa-history"></i> My Orders
+                                </a>
+                            </li>
+                        }
+
+                    </ul>
+
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2025 - GrowthPulse
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @if (User.Identity.IsAuthenticated)
+    {
+        <script>
+            // Load cart count on page load
+            document.addEventListener('DOMContentLoaded', function() {
+                fetch('/Cart/GetCartCount')
+                    .then(response => response.json())
+                    .then(data => {
+                        updateCartCount(data.count);
+                    })
+                    .catch(error => console.log('Error loading cart count:', error));
+            });
+
+            function updateCartCount(count) {
+                var cartCountElement = document.getElementById('cart-count');
+                if (cartCountElement) {
+                    cartCountElement.textContent = count;
+                    cartCountElement.style.display = count > 0 ? 'inline' : 'none';
+                }
+            }
+        </script>
+    }
+
+    @RenderSection("Scripts", required: false)
+</body>

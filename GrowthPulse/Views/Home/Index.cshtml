@@ -1,0 +1,49 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+
+    @if (User.Identity.IsAuthenticated)
+    {
+        // --- CONTENT FOR LOGGED-IN USERS ---
+
+        <h1 class="display-4">Welcome back, @User.FindFirst("FullName")?.Value! 🌱</h1>
+
+        if (User.IsInRole("Customer"))
+        {
+            // --- CONTENT FOR CUSTOMERS ---
+            <p>Manage your personal plant collection or browse the marketplace.</p>
+            <div class="mt-4">
+                @* <a class="btn btn-primary btn-lg" asp-controller="Customer" asp-action="Index">My Dashboard</a> *@
+                <a class="btn btn-success btn-lg" asp-controller="Listing" asp-action="Index">Go to Marketplace</a>
+            </div>
+        }
+        else if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+        {
+            // --- CONTENT FOR ADMINS AND MANAGERS ---
+            <p>You are logged in as an @User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value. Manage your application from the dashboard.</p>
+            <div class="mt-4">
+                @* <a class="btn btn-primary btn-lg" asp-controller="Account" asp-action="Dashboard">Admin Dashboard</a> *@
+                <a class="btn btn-success btn-lg" asp-controller="Listing" asp-action="Index">View Marketplace</a>
+            </div>
+        }
+        else
+        {
+            // --- Fallback for other roles like 'Staff' ---
+            <p>Welcome to GrowthPulse.</p>
+        }
+    }
+    else
+    {
+        // --- CONTENT FOR GUESTS (NOT LOGGED IN) ---
+
+        <h1 class="display-4">Welcome to GrowthPulse</h1>
+        <p>Your digital solution for monitoring plant growth and sales.</p>
+        <div class="mt-4">
+            <a class="btn btn-primary btn-lg" asp-controller="Account" asp-action="Login">Login</a>
+            <a class="btn btn-secondary btn-lg" asp-controller="Account" asp-action="Register">Register</a>
+        </div>
+    }
+
+</div>

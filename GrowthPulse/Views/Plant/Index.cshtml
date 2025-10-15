@@ -1,0 +1,41 @@
+﻿@model List<GrowthPulse.ViewModels.PlantViewModel>
+
+@{
+    ViewData["Title"] = "Plant Dashboard";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Create New Plant</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Image</th>
+            <th>Name</th>
+            <th>Species</th>
+            <th>Status</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    <img src="@item.PhotoUrl" alt="Photo of @item.Name" style="max-width: 100px; border-radius: 5px;" />
+                </td>
+                <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                <td>@Html.DisplayFor(modelItem => item.Species)</td>
+                <td><span class="badge bg-secondary">@Html.DisplayFor(modelItem => item.Status)</span></td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
