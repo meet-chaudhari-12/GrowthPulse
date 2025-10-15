@@ -39,26 +39,20 @@
 
 **Clone the repository:**  
 **Bash**  
-**git clone https://github.com/your-username/GrowthPulse.git**
-
-1.   
+1. **git clone https://github.com/your-username/GrowthPulse.git**
 2. **Configure the Database Connection:**  
    * **Open the `appsettings.json` file.**  
    * **Modify the `DefaultConnection` string to point to your local SQL Server instance.**  
 3. **Apply Migrations:**  
    * **Open the Package Manager Console in Visual Studio.**
-
-**Run the following command to create the database schema:**  
-**Bash**  
-**dotnet ef database update**
-
-*   
+    **Run the following command to create the database schema:**  
+    **Bash**  
+    **dotnet ef database update**
+    *   
 4. **Run the Application:**
-
-**Build and run the project from Visual Studio (press `F5`) or use the .NET CLI:**  
-**Bash**  
-**dotnet run**
-
+  **Build and run the project from Visual Studio (press `F5`) or use the .NET CLI:**  
+  **Bash**  
+  **dotnet run**
 * 
 
 ---
